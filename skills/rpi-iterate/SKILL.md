@@ -5,6 +5,7 @@ tags: [rpi, iterate, plan, refinement, architecture]
 tools:
   - read_file
   - find_files
+  - search_symbols
   - search_code
   - run_subagent
   - write_file
@@ -47,7 +48,7 @@ Follow these steps in exact order when this skill is invoked:
 1. Review the user's critique, feedback, or newly introduced requirements against the active plan.
 2. Identify any codebase areas touched by the feedback that were not covered in the original plan or research:
    - If extensive new code exploration is required, invoke `run_subagent(skill_name="rpi-codebase-locator", task_prompt=...)` or `run_subagent(skill_name="rpi-codebase-analyzer", task_prompt=...)`.
-   - For focused checks, use `find_files`, `search_code`, and `read_file` directly.
+   - For focused checks, use `find_files`, `search_symbols`, `search_code`, and `read_file` directly. Use `search_symbols` to confirm that symbols and `file:line` references cited in the plan still exist where the plan says.
 3. Verify that any proposed additions or alterations align with existing repository patterns and idioms.
 
 ### Step 3: Propose Iteration Summary in Chat

@@ -5,6 +5,7 @@ tags: [rpi, plan, architecture, implementation-plan, engineering]
 tools:
   - read_file
   - find_files
+  - search_symbols
   - search_code
   - get_repo_metadata
   - write_file
@@ -35,7 +36,8 @@ Follow these steps in exact order when this skill is invoked:
 ### Step 1: Ingest Research & Code Context
 1. Search for recent research documents in `./thoughts/research/` using `find_files(pattern="thoughts/research/*.md")`.
 2. Read the most relevant or user-specified research document in full using `read_file`.
-3. If no research document exists, inspect the codebase targets mentioned by the user using `find_files` and `read_file` to establish the baseline understanding before planning.
+3. If no research document exists, inspect the codebase targets mentioned by the user using `find_files`, `search_symbols`, and `read_file` to establish the baseline understanding before planning.
+4. Before citing a symbol in the plan, confirm its current `file:line` with `search_symbols(query="^<name>$")` (fall back to `search_code`). Research artifacts can lag behind the tree.
 
 ### Step 2: Clarifications & Architecture Options
 1. Identify any ambiguities, conflicting requirements, backwards compatibility concerns, or migration risks.

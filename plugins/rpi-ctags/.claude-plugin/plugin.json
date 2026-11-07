@@ -1,0 +1,12 @@
+{
+  "name": "rpi-ctags",
+  "version": "0.1.0",
+  "description": "Universal/Exuberant Ctags symbol tools (search_symbols, list_symbols, generate_ctags) as an MCP server, matching the rpi-agent tool surface.",
+  "author": {
+    "name": "Derek Ditch"
+  },
+  "homepage": "https://github.com/dcode/rpi-skills",
+  "repository": "https://github.com/dcode/rpi-skills",
+  "license": "Apache-2.0",
+  "keywords": ["ctags", "symbols", "code-navigation", "rpi", "mcp"]
+}

@@ -4,6 +4,8 @@ description: Explores the repository to discover WHERE components, entry points,
 tags: [rpi, research, locator, codebase, discovery]
 tools:
   - find_files
+  - search_symbols
+  - list_symbols
   - search_code
 ---
 
@@ -28,6 +30,8 @@ Your **sole responsibility** is identification and cataloging:
 
 ## Execution Workflow
 
+> **Symbol index tools**: `search_symbols`, `list_symbols`, and `generate_ctags` query a Universal/Exuberant Ctags index. They are built into rpi-agent and are provided to other agents by the `rpi-ctags` MCP plugin (in Claude Code they appear as `mcp__plugin_rpi-ctags_ctags__<tool>`). If they are unavailable, or report that no tags file exists, fall back to `find_files` / `search_code`.
+
 Follow this sequence to thoroughly map the relevant codebase footprint:
 
 ### Step 1: Parse the Investigation Topic & Keywords
@@ -45,16 +49,19 @@ Execute targeted glob searches to find files and directories matching the keywor
 - Search in configuration paths: `find_files(pattern="config/**/*<keyword>*")`, `find_files(pattern="**/*.json")`, `find_files(pattern="**/*.yaml")`
 - Search in test directories: `find_files(pattern="tests/**/*<keyword>*")`, `find_files(pattern="**/*test*")`
 
-### Step 3: Symbol & Definition Grep (`search_code`)
+### Step 3: Symbol & Definition Lookup (`search_symbols`, then `search_code`)
 Search the codebase for declared types, functions, routes, and constants to catch files whose names do not match the keywords:
-1. **Definitions & Types**: Search for class, struct, interface, or type declarations:
+1. **Definitions & Types (symbol index first)**: Query the Ctags index, which returns exact `file:line` definitions across every indexed language without grep noise:
+   - `search_symbols(query="<keyword>")` across all kinds, then narrow with `kind="class"`, `kind="function"`, or `language="Python"` if results are broad.
+   - `list_symbols(path="<candidate_dir_or_file>")` to confirm a file's relevance from its declarations instead of reading it.
+2. **Definitions & Types (grep fallback)**: If no index is available, search declarations textually:
    - `search_code(query="class .*<Keyword>")`
    - `search_code(query="interface .*<Keyword>")`
    - `search_code(query="def <keyword>")` / `search_code(query="fn <keyword>")`
-2. **Routes & Endpoints**: Search for HTTP methods, RPC definitions, or CLI command registrations:
+3. **Routes & Endpoints**: Search for HTTP methods, RPC definitions, or CLI command registrations:
    - `search_code(query="@app.route|@router|router\.")`
    - `search_code(query="add_command|subcommand")`
-3. **Configurations & Envs**: Search for environment variable names, settings keys, or feature flags associated with the topic.
+4. **Configurations & Envs**: Search for environment variable names, settings keys, or feature flags associated with the topic.
 
 ### Step 4: Categorize Discovered Targets
 Organize every discovered file into one of four architectural layers:

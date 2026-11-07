@@ -1,0 +1,21 @@
+{
+  "name": "rpi-skills",
+  "description": "Research, Plan, Implement (RPI) skills and supporting tool plugins.",
+  "owner": {
+    "name": "Derek Ditch"
+  },
+  "plugins": [
+    {
+      "name": "rpi",
+      "source": "./",
+      "description": "RPI research, plan, iterate, and implement skills.",
+      "version": "0.1.0",
+      "skills": "./skills/"
+    },
+    {
+      "name": "rpi-ctags",
+      "source": "./plugins/rpi-ctags",
+      "description": "Ctags symbol search/list/generate tools as an MCP server, used by the RPI research skills."
+    }
+  ]
+}

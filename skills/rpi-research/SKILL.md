@@ -5,6 +5,9 @@ tags: [rpi, research, codebase, architecture]
 tools:
   - run_subagent
   - get_repo_metadata
+  - generate_ctags
+  - search_symbols
+  - list_symbols
   - find_files
   - search_code
   - read_file
@@ -36,6 +39,9 @@ Execute these steps in strict sequence:
 1. **Extract Topic**: Identify the specific feature, subsystem, or technical question from the user prompt.
 2. **Read Explicitly Mentioned Files**: If the user referenced specific files, configurations, or tickets, call `read_file` on them first to anchor your understanding.
 3. **Check Prior Research**: Check `./thoughts/research/` using `find_files` for any prior research artifacts that provide historical context.
+4. **Prepare the Symbol Index**: Call `generate_ctags()` once before any pass runs. It is a no-op if a `tags` file already exists; pass `force=True` only if the index is clearly stale (e.g. symbols you just read are missing). The read-only sub-agents rely on this index but cannot build it themselves. If the tool is unavailable or reports no compatible ctags binary, continue; every pass falls back to `search_code`.
+
+> **Symbol index tools**: `search_symbols`, `list_symbols`, and `generate_ctags` query a Universal/Exuberant Ctags index. They are built into rpi-agent and are provided to other agents by the `rpi-ctags` MCP plugin (in Claude Code they appear as `mcp__plugin_rpi-ctags_ctags__<tool>`). If they are unavailable, or report that no tags file exists, fall back to `find_files` / `search_code`.
 
 ---
 
@@ -60,7 +66,8 @@ If the `run_subagent` tool is available in your runtime, delegate each pass to a
   ```
 - **Fallback (Sequential)**:
   - Use `find_files(pattern="*<keyword>*")` to identify matching files across the repository.
-  - Use `search_code(query="<keyword>")` to identify exported types, class definitions, and route declarations.
+  - Use `search_symbols(query="<keyword>")` to identify exported types, class definitions, and functions by `file:line`.
+  - Use `search_code(query="<keyword>")` for route declarations, config keys, and anything the symbol index missed.
   - Group discovered files into logical subsystems: Core Logic, API/CLI Interfaces, Configuration, and Tests.
 
 #### Pass B: Codebase Analyzer
@@ -72,7 +79,8 @@ If the `run_subagent` tool is available in your runtime, delegate each pass to a
   )
   ```
 - **Fallback (Sequential)**:
-  - Call `read_file` on the key files located in Pass A (using `line_start` and `line_end` for large files).
+  - Call `list_symbols(path="<file>")` on each key file located in Pass A to get its declaration map, then `read_file` the relevant ranges (using `line_start` and `line_end` for large files).
+  - Resolve callee definitions with `search_symbols(query="^<name>$", include_context=True)`.
   - Trace execution step-by-step from initialization or request ingress down to backend handlers.
   - Record exact line references (`path/to/file.ext:15-42`) and extract concise code snippets illustrating critical mechanics.
 
